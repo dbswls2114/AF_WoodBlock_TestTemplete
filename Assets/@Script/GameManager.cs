@@ -29,6 +29,10 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText; // 점수 텍스트 (TMP)
     public TextMeshProUGUI bestscoreText; // 점수 텍스트 (TMP)
 
+
+    //저장용 상수
+    private const string BestRecordKey = "BestRecord";
+
     // 내부 상태 변수
     private int[,] gridData; // 0: 빈칸, 1: 채워짐
     private Transform[,] gridVisuals; // 격자에 놓인 블록 조각들의 Transform
@@ -131,7 +135,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         if (boardParent == null || handParent == null)
-        {           
+        {
             return;
         }
         InitializeGame();
@@ -155,8 +159,12 @@ public class GameManager : MonoBehaviour
         cellSize = boardWorldSize.x / boardSize;
 
         CreateBoardVisuals();
-        
+
         SpawnNewBlocks();
+
+        BestRecord = PlayerPrefs.GetInt(BestRecordKey, 0);
+        if (bestscoreText != null) UpdateScoreUI(true);
+
     }
 
     Vector3 GetObjectWorldSize(Transform t)
@@ -178,7 +186,7 @@ public class GameManager : MonoBehaviour
 
         foreach (Transform child in boardParent) Destroy(child.gameObject);
 
-        float offset = (boardSize * cellSize) * 0.5f - (cellSize * 0.5f);            
+        float offset = (boardSize * cellSize) * 0.5f - (cellSize * 0.5f);
 
         for (int x = 0; x < boardSize; x++)
         {
@@ -186,7 +194,7 @@ public class GameManager : MonoBehaviour
             {
                 Vector3 pos = new Vector3(x * cellSize - offset, y * cellSize - offset, 0);
 
-                GameObject cell = Instantiate(cellPrefab,boardParent);
+                GameObject cell = Instantiate(cellPrefab, boardParent);
                 cell.transform.localPosition = pos;
                 cell.transform.localScale = Vector3.one * cellSize;
                 cell.name = $"Cell_{x}_{y}";
@@ -209,8 +217,8 @@ public class GameManager : MonoBehaviour
         mousePos.z = 0;
 
         // 입력 상태 확인 (누름, 누르고 있음, 뗌)
-        bool wasPressed = Pointer.current.press.wasPressedThisFrame;  
-        bool isPressed = Pointer.current.press.isPressed;            
+        bool wasPressed = Pointer.current.press.wasPressedThisFrame;
+        bool isPressed = Pointer.current.press.isPressed;
         bool wasReleased = Pointer.current.press.wasReleasedThisFrame;
 
         if (wasPressed)
@@ -231,7 +239,7 @@ public class GameManager : MonoBehaviour
                     // 크기를 보드 셀 크기(1:1)로 부드럽게 복구
 
                     block.transform.SetParent(null);
-                    block.transform.localScale = Vector3.one; 
+                    block.transform.localScale = Vector3.one;
 
                     block.SetSortingOrder(100);
 
@@ -303,7 +311,7 @@ public class GameManager : MonoBehaviour
         foreach (Vector2Int pos in lastPreviewCoords)
         {
             if (IsValidCoord(pos))
-            {                
+            {
                 SpriteRenderer sr = boardCellRenderers[pos.x, pos.y];
                 if (sr != null && defaultCellSprite != null)
                 {
@@ -377,7 +385,7 @@ public class GameManager : MonoBehaviour
         Vector3 handCenterPos = handParent.position;
 
         float slotWidth = handAreaSize.x / 3.0f;
-        float startX = handCenterPos.x - handAreaSize.x * 0.5f + slotWidth * 0.5f; 
+        float startX = handCenterPos.x - handAreaSize.x * 0.5f + slotWidth * 0.5f;
 
         List<GameObject> createdObjs = new List<GameObject>();
         List<Block> createdScripts = new List<Block>();
@@ -403,11 +411,11 @@ public class GameManager : MonoBehaviour
             float maxH = handAreaSize.y * 0.8f;
 
             float scaleX = maxW / blockWidth;
-            float scaleY = maxH / blockHeight;  
+            float scaleY = maxH / blockHeight;
             float fitScale = Mathf.Min(scaleX, scaleY, 1.0f);
 
             if (fitScale < minCommonScale) minCommonScale = fitScale;
-           
+
             createdObjs.Add(blockObj);
             createdScripts.Add(blockScript);
 
@@ -415,7 +423,7 @@ public class GameManager : MonoBehaviour
             // 충돌체 크기는 로컬 스케일 영향을 받으므로 실제 사이즈로 설정
             col.size = new Vector2(blockWidth, blockHeight);
 
-            
+
         }
         float finalScale = Mathf.Min(minCommonScale, 0.6f);
 
@@ -459,7 +467,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            block.transform.SetParent(handParent, true); 
+            block.transform.SetParent(handParent, true);
             block.SetSortingOrder(10);
             block.ReturnToOrigin(originalBlockPos, originalBlockScale);
         }
@@ -470,7 +478,7 @@ public class GameManager : MonoBehaviour
         Vector3 localPos = boardParent.InverseTransformPoint(worldPos);
 
         float boardRealWidth = cellSize * boardSize;
-        float startOffset = -boardRealWidth * 0.5f + cellSize * 0.5f;   
+        float startOffset = -boardRealWidth * 0.5f + cellSize * 0.5f;
 
         int x = Mathf.RoundToInt((localPos.x - startOffset) / cellSize);
         int y = Mathf.RoundToInt((localPos.y - startOffset) / cellSize);
@@ -494,7 +502,7 @@ public class GameManager : MonoBehaviour
 
     void PlaceBlockOnGrid(Block block, List<Vector2Int> coords)
     {
-       SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
+        SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
 
         for (int i = 0; i < coords.Count; i++)
         {
@@ -591,7 +599,7 @@ public class GameManager : MonoBehaviour
         {
             for (int y = 0; y < boardSize; y++)
             {
-                if (gridData[x, y] == 1) 
+                if (gridData[x, y] == 1)
                 {
                     gridData[x, y] = 0;
                     if (gridVisuals[x, y] != null) piecesToDestroy.Add(gridVisuals[x, y]);
@@ -615,7 +623,9 @@ public class GameManager : MonoBehaviour
         currentScore += amount;
         if (currentScore > BestRecord)
         {
-            BestRecord = currentScore;  
+            BestRecord = currentScore;
+            PlayerPrefs.SetInt(BestRecordKey, BestRecord);
+            PlayerPrefs.Save();
             BestRecordPlayed = true;
             UpdateScoreUI(true);
         }
@@ -624,11 +634,11 @@ public class GameManager : MonoBehaviour
 
     void UpdateScoreUI(bool bestscore = false)
     {
-        string scoretxt = "Score"; 
+        string scoretxt = "Score";
         string bestscoretxt = "Best Score";
 
         if (scoreText) scoreText.text = $"<size=20>{scoretxt}</size>\n<size=30>{currentScore}</size>";
-        if (bestscore) 
+        if (bestscore)
         {
             bestscoreText.text = $"<size=20>{bestscoretxt}</size>\n<size=30>{BestRecord}</size>";
         }
@@ -652,7 +662,7 @@ public class GameManager : MonoBehaviour
         if (!possibleMoveExists && activeBlocks.Count > 0)
         {
             Debug.Log("Game Over");
-            if(BestRecordPlayed)
+            if (BestRecordPlayed)
             {
                 SoundManager.Instance.PlaySFX(SoundManager.Instance.BestRecordClip);
                 BestRecordPlayed = false;
@@ -700,7 +710,7 @@ public class GameManager : MonoBehaviour
         }
         return true;
     }
- 
+
     // 버튼연결
     public void RestartGame()
     {

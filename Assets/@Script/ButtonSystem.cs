@@ -19,4 +19,10 @@ public class ButtonSystem : MonoBehaviour
         //GameManager.Instance.StartGame();
     }
 
+
+    //테스트용함수
+    public void ResetData()
+    {
+        PlayerPrefs.DeleteKey("BestScore");
+    }
 }
