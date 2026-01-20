@@ -24,7 +24,6 @@ public class Block : MonoBehaviour
                 if (shape[x, y] == 1)
                 {
                     GameObject p = Instantiate(piecePrefab, transform);
-                    // 로컬 위치 설정
                     p.transform.localPosition = new Vector3(x * cellSize - offsetX, y * cellSize - offsetY, 0);
                     p.transform.localScale = Vector3.one * (cellSize * 0.95f);
                     pieces.Add(p.transform);
@@ -41,16 +40,15 @@ public class Block : MonoBehaviour
         }
     }
 
-    public void ReturnToOrigin(Vector3 origin, float scale)
+    public void ReturnToOrigin(Vector3 origin, Vector3 scale)
     {
         StartCoroutine(AnimateReturn(origin, scale));
     }
-    private System.Collections.IEnumerator AnimateReturn(Vector3 origin, float scale)
+    private System.Collections.IEnumerator AnimateReturn(Vector3 origin, Vector3 endScale)
     {
         float t = 0;
         Vector3 startPos = transform.position; // 애니메이션 시작 시점의 위치
         Vector3 startScale = transform.localScale; // 애니메이션 시작 시점의 크기 (드래그 중인 큰 크기)
-        Vector3 endScale = Vector3.one * scale; // 목표 크기 (대기열에 있을 때의 작은 크기)
 
         while (t < 1) // t가 1이 될 때까지 반복 (Time.deltaTime * 10 속도로 증가하므로 약 0.1초 소요)
         {
