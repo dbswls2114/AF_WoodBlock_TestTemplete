@@ -29,7 +29,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void SetupAudioSystem()
+    void SetupAudioSystem()
     {
         bgmSource = gameObject.AddComponent<AudioSource>();
         bgmSource.loop = true;

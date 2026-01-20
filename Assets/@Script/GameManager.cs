@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [Header("Settings")]
     public int boardSize = 8;
     private float cellSize = 1.0f;
@@ -25,6 +27,7 @@ public class GameManager : MonoBehaviour
     public GameObject blockPiecePrefab; // 블록 조각 프리팹
     public GameObject gameOverUI; // 게임 오버 UI 패널
     public TextMeshProUGUI scoreText; // 점수 텍스트 (TMP)
+    public TextMeshProUGUI bestscoreText; // 점수 텍스트 (TMP)
 
     // 내부 상태 변수
     private int[,] gridData; // 0: 빈칸, 1: 채워짐
@@ -36,6 +39,8 @@ public class GameManager : MonoBehaviour
     private Vector3 originalBlockPos;
     private Vector3 originalBlockScale; // 드래그 취소 시 돌아갈 크기 저장용
     private int currentScore = 0;
+    private int BestRecord = 0;
+    private bool BestRecordPlayed = false;
 
     private List<Vector2Int> lastPreviewCoords = new List<Vector2Int>();
     private List<GameObject> activeHighlightOverlays = new List<GameObject>();
@@ -111,6 +116,17 @@ public class GameManager : MonoBehaviour
     };
 
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -597,14 +613,25 @@ public class GameManager : MonoBehaviour
     void AddScore(int amount)
     {
         currentScore += amount;
+        if (currentScore > BestRecord)
+        {
+            BestRecord = currentScore;  
+            BestRecordPlayed = true;
+            UpdateScoreUI(true);
+        }
         UpdateScoreUI();
     }
 
-    void UpdateScoreUI()
+    void UpdateScoreUI(bool bestscore = false)
     {
-        string scoretxt = "Score";
+        string scoretxt = "Score"; 
+        string bestscoretxt = "Best Score";
 
         if (scoreText) scoreText.text = $"<size=20>{scoretxt}</size>\n<size=30>{currentScore}</size>";
+        if (bestscore) 
+        {
+            bestscoreText.text = $"<size=20>{bestscoretxt}</size>\n<size=30>{BestRecord}</size>";
+        }
     }
 
     // --- 게임 오버 확인 ---
@@ -625,7 +652,13 @@ public class GameManager : MonoBehaviour
         if (!possibleMoveExists && activeBlocks.Count > 0)
         {
             Debug.Log("Game Over");
+            if(BestRecordPlayed)
+            {
+                SoundManager.Instance.PlaySFX(SoundManager.Instance.BestRecordClip);
+                BestRecordPlayed = false;
+            }
             gameOverUI.SetActive(true);
+            UIManager.Instance.GameoverUIScore(currentScore);
         }
     }
 
@@ -668,6 +701,11 @@ public class GameManager : MonoBehaviour
         return true;
     }
  
-
+    // 버튼연결
+    public void RestartGame()
+    {
+        SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
+        InitializeGame();
+    }
 
 }
