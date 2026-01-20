@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class ButtonSystem : MonoBehaviour
 {
@@ -9,18 +9,18 @@ public class ButtonSystem : MonoBehaviour
 
     public void OnReturnToMainMenu()
     {
-        //¸ŞÀÎ¸Ş´º·Î ÀÌµ¿
+        //ë©”ì¸ë©”ë‰´ë¡œ ì´ë™
         //GameManager.Instance.ReturnToMainMenu();
     }
 
     public void OnStartGame()
     {
-        //¸ŞÀÎ¸Ş´º¿¡¼­ °ÔÀÓ ½ÃÀÛ
+        //ë©”ì¸ë©”ë‰´ì—ì„œ ê²Œì„ ì‹œì‘
         //GameManager.Instance.StartGame();
     }
 
 
-    //Å×½ºÆ®¿ëÇÔ¼ö
+    //í…ŒìŠ¤íŠ¸ìš©í•¨ìˆ˜
     public void ResetData()
     {
         PlayerPrefs.DeleteKey("BestScore");

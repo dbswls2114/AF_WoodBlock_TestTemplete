@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class Block : MonoBehaviour
@@ -13,7 +13,7 @@ public class Block : MonoBehaviour
         int width = shape.GetLength(0);
         int height = shape.GetLength(1);
 
-        // Áß½ÉÁ¡ ¸ÂÃß±â À§ÇÑ ¿ÀÇÁ¼Â
+        // ì¤‘ì‹¬ì  ë§ì¶”ê¸° ìœ„í•œ ì˜¤í”„ì…‹
         float offsetX = (width - 1) * cellSize * 0.5f;
         float offsetY = (height - 1) * cellSize * 0.5f;
 
@@ -47,17 +47,17 @@ public class Block : MonoBehaviour
     private System.Collections.IEnumerator AnimateReturn(Vector3 origin, Vector3 endScale)
     {
         float t = 0;
-        Vector3 startPos = transform.position; // ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ ½ÃÁ¡ÀÇ À§Ä¡
-        Vector3 startScale = transform.localScale; // ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ ½ÃÁ¡ÀÇ Å©±â (µå·¡±× ÁßÀÎ Å« Å©±â)
+        Vector3 startPos = transform.position; // ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ ì‹œì ì˜ ìœ„ì¹˜
+        Vector3 startScale = transform.localScale; // ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ ì‹œì ì˜ í¬ê¸° (ë“œë˜ê·¸ ì¤‘ì¸ í° í¬ê¸°)
 
-        while (t < 1) // t°¡ 1ÀÌ µÉ ¶§±îÁö ¹İº¹ (Time.deltaTime * 10 ¼Óµµ·Î Áõ°¡ÇÏ¹Ç·Î ¾à 0.1ÃÊ ¼Ò¿ä)
+        while (t < 1) // tê°€ 1ì´ ë  ë•Œê¹Œì§€ ë°˜ë³µ (Time.deltaTime * 10 ì†ë„ë¡œ ì¦ê°€í•˜ë¯€ë¡œ ì•½ 0.1ì´ˆ ì†Œìš”)
         {
             t += Time.deltaTime * 10;
-            transform.position = Vector3.Lerp(startPos, origin, t); // ½ÃÀÛ À§Ä¡¿¡¼­ ¸ñÇ¥ À§Ä¡·Î ºÎµå·´°Ô ÀÌµ¿
-            transform.localScale = Vector3.Lerp(startScale, endScale, t); // Å©±âµµ ºÎµå·´°Ô º¯°æ
+            transform.position = Vector3.Lerp(startPos, origin, t); // ì‹œì‘ ìœ„ì¹˜ì—ì„œ ëª©í‘œ ìœ„ì¹˜ë¡œ ë¶€ë“œëŸ½ê²Œ ì´ë™
+            transform.localScale = Vector3.Lerp(startScale, endScale, t); // í¬ê¸°ë„ ë¶€ë“œëŸ½ê²Œ ë³€ê²½
             yield return null;
         }
-        // ·çÇÁ Á¾·á ÈÄ Á¤È®ÇÑ ¸ñÇ¥ °ªÀ¸·Î È®Á¤
+        // ë£¨í”„ ì¢…ë£Œ í›„ ì •í™•í•œ ëª©í‘œ ê°’ìœ¼ë¡œ í™•ì •
         transform.position = origin;
         transform.localScale = endScale;
 

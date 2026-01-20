@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
@@ -29,7 +29,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    void SetupAudioSystem()
+    void SetupAudioSystem() // [기능,초기화] 오디오 소스 설정
     {
         bgmSource = gameObject.AddComponent<AudioSource>();
         bgmSource.loop = true;
@@ -48,7 +48,7 @@ public class SoundManager : MonoBehaviour
         sfxSource.volume = sfxVolume;
     }
 
-    public void PlaySFX(AudioClip clip)
+    public void PlaySFX(AudioClip clip) // [기능] 효과음 재생
     {
         if (clip != null && sfxSource != null)
         {

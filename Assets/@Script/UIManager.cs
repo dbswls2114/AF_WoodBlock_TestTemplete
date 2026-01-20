@@ -1,14 +1,14 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
    public static UIManager Instance;
-    //GameManager ¿¡ ÀÖ´Â UI °ü·Ã ±â´ÉµéÀ» ¿©±â¿¡ Ãß°¡ÇÒ ¿¹Á¤
+    //GameManager ì— ìžˆëŠ” UI ê´€ë ¨ ê¸°ëŠ¥ë“¤ì„ ì—¬ê¸°ì— ì¶”ê°€í•  ì˜ˆì •
 
-    public Transform scoreContainer; // ¼ýÀÚ°¡ »ý¼ºµÉ ºÎ¸ð °´Ã¼ (Layout Group ÀÖÀ½)
-    public GameObject digitPrefab;   // ¼ýÀÚ ÇÏ³ª¸¦ Ç¥½ÃÇÒ Image ÇÁ¸®ÆÕ
+    public Transform scoreContainer; // ìˆ«ìžê°€ ìƒì„±ë  ë¶€ëª¨ ê°ì²´ (Layout Group ìžˆìŒ)
+    public GameObject digitPrefab;   // ìˆ«ìž í•˜ë‚˜ë¥¼ í‘œì‹œí•  Image í”„ë¦¬íŒ¹
 
-    private Sprite[] numberSprites;  // ·ÎµåµÈ 0~9 ½ºÇÁ¶óÀÌÆ® ÀúÀå
+    private Sprite[] numberSprites;  // ë¡œë“œëœ 0~9 ìŠ¤í”„ë¼ì´íŠ¸ ì €ìž¥
 
     void Awake()
     {
@@ -24,7 +24,7 @@ public class UIManager : MonoBehaviour
          }
     }
 
-    void LoadNumberSprites()
+    void LoadNumberSprites() // [ê¸°ëŠ¥,ì´ˆê¸°í™”] Resources/Numbers í´ë”ì—ì„œ ìˆ«ìž ìŠ¤í”„ë¼ì´íŠ¸ ë¡œë“œ
     {
         numberSprites = new Sprite[10];
 
@@ -38,25 +38,25 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"¼ýÀÚ ½ºÇÁ¶óÀÌÆ® {i}¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! Resources/Numbers Æú´õ¸¦ È®ÀÎÇÏ¼¼¿ä.");
+                Debug.LogError($"ìˆ«ìž ìŠ¤í”„ë¼ì´íŠ¸ {i}ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! Resources/Numbers í´ë”ë¥¼ í™•ì¸í•˜ì„¸ìš”.");
             }
         }
     }
 
 
-    public void GameoverUIScore(int score)
+    public void GameoverUIScore(int score) // [ê¸°ëŠ¥] ê²Œìž„ì˜¤ë²„ ì‹œ ì ìˆ˜ë¥¼ UIì— í‘œì‹œ
     {
-        // ±âÁ¸ Á¡¼ö UI ÃÊ±âÈ­
+        // ê¸°ì¡´ ì ìˆ˜ UI ì´ˆê¸°í™”
         foreach (Transform child in scoreContainer)
         {
             Destroy(child.gameObject);
         }
-        // Á¡¼ö¸¦ ¹®ÀÚ¿­·Î º¯È¯
+        // ì ìˆ˜ë¥¼ ë¬¸ìžì—´ë¡œ ë³€í™˜
         string scoreStr = score.ToString();
-        // °¢ ÀÚ¸®¼ö¸¶´Ù ÀÌ¹ÌÁö »ý¼º
+        // ê° ìžë¦¬ìˆ˜ë§ˆë‹¤ ì´ë¯¸ì§€ ìƒì„±
         foreach (char digitChar in scoreStr)
         {
-            int digit = digitChar - '0'; // ¹®ÀÚ¿¡¼­ ¼ýÀÚ º¯È¯
+            int digit = digitChar - '0'; // ë¬¸ìžì—ì„œ ìˆ«ìž ë³€í™˜
             if (digit >= 0 && digit <= 9)
             {
                 GameObject digitObj = Instantiate(digitPrefab, scoreContainer);
@@ -65,7 +65,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Àß¸øµÈ ¼ýÀÚ ¹®ÀÚ: {digitChar}");
+                Debug.LogError($"ìž˜ëª»ëœ ìˆ«ìž ë¬¸ìž: {digitChar}");
             }
         }
     }

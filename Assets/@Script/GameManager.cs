@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,39 +9,43 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    // ê²Œì„ ì„¤ì • ë³€ìˆ˜ ----------
+
     [Header("Settings")]
     public int boardSize = 8;
     private float cellSize = 1.0f;
     public float dragScale = 1.0f;
 
-    public Sprite defaultCellSprite; // Æò¼Ò ±âº» ¼¿ ÀÌ¹ÌÁö
-    public Sprite previewCellSprite; // È£¹ö¸µ ½Ã º¸¿©ÁÙ ÀÌ¹ÌÁö
-    public Sprite destroyHighlightSprite; // ÆÄ±« µÉ ºí·Ï¿¡ º¸¿©ÁÙ ÀÌ¹ÌÁö
+    // ì¶”í›„ prefabì„ ì§ì ‘ Inspectorì—ì„œ í• ë‹¹í•˜ì§€ì•Šê³  Resources í´ë”ì—ì„œ ë¡œë“œ í˜¹ì€ ì´ˆê¸°í™” ì‹œ ìƒì„±,íƒìƒ‰í•˜ëŠ” ë°©ì‹ìœ¼ë¡œ ë³€ê²½ ì˜ˆì •
+
+    public Sprite defaultCellSprite; // í‰ì†Œ ê¸°ë³¸ ì…€ ì´ë¯¸ì§€
+    public Sprite previewCellSprite; // í˜¸ë²„ë§ ì‹œ ë³´ì—¬ì¤„ ì´ë¯¸ì§€
+    public Sprite destroyHighlightSprite; // íŒŒê´´ ë  ë¸”ë¡ì— ë³´ì—¬ì¤„ ì´ë¯¸ì§€
 
     [Header("Layout References")]
-    public Transform boardParent; // º¸µå°¡ »ı¼ºµÉ ºÎ¸ğ À§Ä¡ ¹× Å©±â ±âÁØ
-    public Transform handParent;  // ºí·ÏµéÀÌ »ı¼ºµÉ ºÎ¸ğ À§Ä¡ ¹× Å©±â ±âÁØ
+    public Transform boardParent; // ë³´ë“œê°€ ìƒì„±ë  ë¶€ëª¨ ìœ„ì¹˜ ë° í¬ê¸° ê¸°ì¤€
+    public Transform handParent;  // ë¸”ë¡ë“¤ì´ ìƒì„±ë  ë¶€ëª¨ ìœ„ì¹˜ ë° í¬ê¸° ê¸°ì¤€
 
     [Header("Prefab References")]
-    public GameObject cellPrefab; // °İÀÚ ¹è°æ ¼¿ ÇÁ¸®ÆÕ
-    public GameObject blockPiecePrefab; // ºí·Ï Á¶°¢ ÇÁ¸®ÆÕ
-    public GameObject gameOverUI; // °ÔÀÓ ¿À¹ö UI ÆĞ³Î
-    public TextMeshProUGUI scoreText; // Á¡¼ö ÅØ½ºÆ® (TMP)
-    public TextMeshProUGUI bestscoreText; // Á¡¼ö ÅØ½ºÆ® (TMP)
+    public GameObject cellPrefab; // ê²©ì ë°°ê²½ ì…€ í”„ë¦¬íŒ¹
+    public GameObject blockPiecePrefab; // ë¸”ë¡ ì¡°ê° í”„ë¦¬íŒ¹
+    public GameObject gameOverUI; // ê²Œì„ ì˜¤ë²„ UI íŒ¨ë„ [UiManagerë¡œ ì´ì „ ì˜ˆì •]
+    public TextMeshProUGUI scoreText; // ì ìˆ˜ í…ìŠ¤íŠ¸ (TMP)  [UiManagerë¡œ ì´ì „ ì˜ˆì •]
+    public TextMeshProUGUI bestscoreText; // ì ìˆ˜ í…ìŠ¤íŠ¸ (TMP) [UiManagerë¡œ ì´ì „ ì˜ˆì •]
 
 
-    //ÀúÀå¿ë »ó¼ö
+    // ì €ì¥ìš© ìƒìˆ˜
     private const string BestRecordKey = "BestRecord";
 
-    // ³»ºÎ »óÅÂ º¯¼ö
-    private int[,] gridData; // 0: ºóÄ­, 1: Ã¤¿öÁü
-    private Transform[,] gridVisuals; // °İÀÚ¿¡ ³õÀÎ ºí·Ï Á¶°¢µéÀÇ Transform
+    // ë‚´ë¶€ ìƒíƒœ ë³€ìˆ˜
+    private int[,] gridData; // 0: ë¹ˆì¹¸, 1: ì±„ì›Œì§
+    private Transform[,] gridVisuals; // ê²©ìì— ë†“ì¸ ë¸”ë¡ ì¡°ê°ë“¤ì˜ Transform
 
     private SpriteRenderer[,] boardCellRenderers;
     private List<Block> activeBlocks = new List<Block>();
     private Block currentDraggingBlock = null;
     private Vector3 originalBlockPos;
-    private Vector3 originalBlockScale; // µå·¡±× Ãë¼Ò ½Ã µ¹¾Æ°¥ Å©±â ÀúÀå¿ë
+    private Vector3 originalBlockScale; // ë“œë˜ê·¸ ì·¨ì†Œ ì‹œ ëŒì•„ê°ˆ í¬ê¸° ì €ì¥ìš©
     private int currentScore = 0;
     private int BestRecord = 0;
     private bool BestRecordPlayed = false;
@@ -80,11 +84,11 @@ public class GameManager : MonoBehaviour
 
         new int[,] { {1, 1, 1},
                      {0, 0, 1},
-                     {0, 0, 1} }, // Big ¤¡ shape
+                     {0, 0, 1} }, // Big ã„± shape
 
         new int[,] { {1, 1, 1},
                      {1, 0, 0},
-                     {1, 0, 0} }, // reverse Big ¤¡ shape
+                     {1, 0, 0} }, // reverse Big ã„± shape
 
         new int[,] { {0, 1, 0},
                      {1, 1, 1},
@@ -146,7 +150,7 @@ public class GameManager : MonoBehaviour
         HandleInput();
     }
 
-    void InitializeGame()
+    void InitializeGame() // ê²Œì„ ì´ˆê¸°í™”
     {
         currentScore = 0;
         UpdateScoreUI();
@@ -167,21 +171,69 @@ public class GameManager : MonoBehaviour
 
     }
 
-    Vector3 GetObjectWorldSize(Transform t)
+
+    void HandleInput() //[ì…ë ¥ ì²˜ë¦¬] ë¸”ë¡ ë“œë˜ê·¸ ì•¤ ë“œë¡­ [Inputmanagerë¡œ ì´ì „ ì˜ˆì •]
     {
-        // SpriteRenderer°¡ ÀÖÀ¸¸é ±× Å©±â, ¾øÀ¸¸é ½ºÄÉÀÏ ±â¹İ (1À¯´Ö ÇÁ¸®ÆÕ °¡Á¤)
-        SpriteRenderer sr = t.GetComponent<SpriteRenderer>();
-        if (sr != null) return sr.bounds.size;
+        if (gameOverUI.activeSelf) return;
 
-        // RectTransformÀÌ ÀÖÀ¸¸é ±× Å©±â (UIÀÏ °æ¿ì)
-        RectTransform rt = t.GetComponent<RectTransform>();
-        if (rt != null) return new Vector3(rt.rect.width * t.lossyScale.x, rt.rect.height * t.lossyScale.y, 1);
+        if (Pointer.current == null) return;
 
-        // ±âº» Transform ½ºÄÉÀÏ (ºÎ¸ğ°¡ 1x1 Å¥ºê³ª ºó ¿ÀºêÁ§Æ®ÀÏ ¶§)
-        return t.lossyScale;
+        // í¬ì¸í„° ìœ„ì¹˜ ê°€ì ¸ì˜¤ê¸° (ë§ˆìš°ìŠ¤ ì¢Œí‘œ or í„°ì¹˜ ì¢Œí‘œ)
+        Vector2 screenPos = Pointer.current.position.ReadValue();
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
+        mousePos.z = 0;
+
+        // ì…ë ¥ ìƒíƒœ í™•ì¸ (ëˆ„ë¦„, ëˆ„ë¥´ê³  ìˆìŒ, ë—Œ)
+        bool wasPressed = Pointer.current.press.wasPressedThisFrame;
+        bool isPressed = Pointer.current.press.isPressed;
+        bool wasReleased = Pointer.current.press.wasReleasedThisFrame;
+
+        if (wasPressed)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+            if (hit.collider != null)
+            {
+                Block block = hit.collider.GetComponentInParent<Block>();
+                if (block != null && activeBlocks.Contains(block))
+                {
+                    SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
+
+                    currentDraggingBlock = block;
+                    originalBlockPos = block.transform.position;
+                    originalBlockScale = block.transform.localScale;
+
+                    // ë“œë˜ê·¸ ì‹œì‘ ì‹œ ë¶€ëª¨ì—ì„œ ë¶„ë¦¬í•˜ì§€ ì•Šê³  ì›”ë“œìƒ ìœ„ì¹˜ ìœ ì§€í•˜ë˜,
+                    // í¬ê¸°ë¥¼ ë³´ë“œ ì…€ í¬ê¸°(1:1)ë¡œ ë¶€ë“œëŸ½ê²Œ ë³µêµ¬
+
+                    block.transform.SetParent(null);
+                    block.transform.localScale = Vector3.one;
+
+                    block.SetSortingOrder(100);
+
+                    // ë Œë”ë§ ìˆœì„œ ìƒìœ„ë¡œ
+                    Vector3 pos = block.transform.position;
+                    pos.z = 0;
+                    block.transform.position = pos;
+
+                    block.targetOffset = new Vector3(0, cellSize * 2f, 0);
+                }
+            }
+        }
+
+        if (isPressed && currentDraggingBlock != null)
+        {
+            currentDraggingBlock.transform.position = Vector3.Lerp(currentDraggingBlock.transform.position, mousePos + currentDraggingBlock.targetOffset, 25 * Time.deltaTime);
+            ShowPreview(currentDraggingBlock);
+        }
+
+        if (wasReleased && currentDraggingBlock != null)
+        {
+            ClearPreview();
+            TryPlaceBlock(currentDraggingBlock);
+            currentDraggingBlock = null;
+        }
     }
-
-    void CreateBoardVisuals()
+    void CreateBoardVisuals() // [ê¸°ëŠ¥] ë³´ë“œ ê²©ì ì‹œê°ì  ìš”ì†Œ ìƒì„±
     {
 
         foreach (Transform child in boardParent) Destroy(child.gameObject);
@@ -205,69 +257,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void HandleInput()
-    {
-        if (gameOverUI.activeSelf) return;
-
-        if (Pointer.current == null) return;
-
-        // Æ÷ÀÎÅÍ À§Ä¡ °¡Á®¿À±â (¸¶¿ì½º ÁÂÇ¥ or ÅÍÄ¡ ÁÂÇ¥)
-        Vector2 screenPos = Pointer.current.position.ReadValue();
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0));
-        mousePos.z = 0;
-
-        // ÀÔ·Â »óÅÂ È®ÀÎ (´©¸§, ´©¸£°í ÀÖÀ½, ¶À)
-        bool wasPressed = Pointer.current.press.wasPressedThisFrame;
-        bool isPressed = Pointer.current.press.isPressed;
-        bool wasReleased = Pointer.current.press.wasReleasedThisFrame;
-
-        if (wasPressed)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-            if (hit.collider != null)
-            {
-                Block block = hit.collider.GetComponentInParent<Block>();
-                if (block != null && activeBlocks.Contains(block))
-                {
-                    SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
-
-                    currentDraggingBlock = block;
-                    originalBlockPos = block.transform.position;
-                    originalBlockScale = block.transform.localScale;
-
-                    // µå·¡±× ½ÃÀÛ ½Ã ºÎ¸ğ¿¡¼­ ºĞ¸®ÇÏÁö ¾Ê°í ¿ùµå»ó À§Ä¡ À¯ÁöÇÏµÇ,
-                    // Å©±â¸¦ º¸µå ¼¿ Å©±â(1:1)·Î ºÎµå·´°Ô º¹±¸
-
-                    block.transform.SetParent(null);
-                    block.transform.localScale = Vector3.one;
-
-                    block.SetSortingOrder(100);
-
-                    // ·»´õ¸µ ¼ø¼­ »óÀ§·Î
-                    Vector3 pos = block.transform.position;
-                    pos.z = 0;
-                    block.transform.position = pos;
-
-                    block.targetOffset = new Vector3(0, cellSize * 2f, 0);
-                }
-            }
-        }
-
-        if (isPressed && currentDraggingBlock != null)
-        {
-            currentDraggingBlock.transform.position = Vector3.Lerp(currentDraggingBlock.transform.position, mousePos + currentDraggingBlock.targetOffset, 25 * Time.deltaTime);
-            ShowPreview(currentDraggingBlock);
-        }
-
-        if (wasReleased && currentDraggingBlock != null)
-        {
-            ClearPreview();
-            TryPlaceBlock(currentDraggingBlock);
-            currentDraggingBlock = null;
-        }
-    }
-
-    void ShowPreview(Block block)
+    void ShowPreview(Block block) // [ê¸°ëŠ¥] ë¸”ë¡ ë†“ê¸° ë¯¸ë¦¬ë³´ê¸°
     {
         List<Vector2Int> currentCoords = new List<Vector2Int>();
         bool canPlace = true;
@@ -306,7 +296,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ClearPreview()
+    void ClearPreview() // [ê¸°ëŠ¥] ë¸”ë¡ ë†“ê¸° ë¯¸ë¦¬ë³´ê¸° ì´ˆê¸°í™”
     {
         foreach (Vector2Int pos in lastPreviewCoords)
         {
@@ -328,7 +318,7 @@ public class GameManager : MonoBehaviour
         activeHighlightOverlays.Clear();
     }
 
-    void HighlightLinesToClear(List<Vector2Int> newBlockCoords)
+    void HighlightLinesToClear(List<Vector2Int> newBlockCoords) // [ê¸°ëŠ¥] ë†“ì„ ë¸”ë¡ìœ¼ë¡œ ì¸í•´ ì œê±°ë  ì¤„ í•˜ì´ë¼ì´íŠ¸
     {
         int[,] tempGrid = (int[,])gridData.Clone();
         foreach (var pos in newBlockCoords)
@@ -356,7 +346,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 4. ¿À¹ö·¹ÀÌ »ı¼º
+        // 4. ì˜¤ë²„ë ˆì´ ìƒì„±
         foreach (var pos in blocksToHighlight)
         {
             Transform blockPiece = gridVisuals[pos.x, pos.y];
@@ -376,7 +366,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void SpawnNewBlocks()
+    void SpawnNewBlocks() // [ê¸°ëŠ¥] í•¸ë“œ ë¸”ë¡ 3ê°œ ìƒì„±
     {
         foreach (Transform child in handParent) Destroy(child.gameObject);
         activeBlocks.Clear();
@@ -420,7 +410,7 @@ public class GameManager : MonoBehaviour
             createdScripts.Add(blockScript);
 
             BoxCollider2D col = blockObj.AddComponent<BoxCollider2D>();
-            // Ãæµ¹Ã¼ Å©±â´Â ·ÎÄÃ ½ºÄÉÀÏ ¿µÇâÀ» ¹ŞÀ¸¹Ç·Î ½ÇÁ¦ »çÀÌÁî·Î ¼³Á¤
+            // ì¶©ëŒì²´ í¬ê¸°ëŠ” ë¡œì»¬ ìŠ¤ì¼€ì¼ ì˜í–¥ì„ ë°›ìœ¼ë¯€ë¡œ ì‹¤ì œ ì‚¬ì´ì¦ˆë¡œ ì„¤ì •
             col.size = new Vector2(blockWidth, blockHeight);
 
 
@@ -432,7 +422,7 @@ public class GameManager : MonoBehaviour
             GameObject obj = createdObjs[i];
             obj.transform.localScale = Vector3.one * finalScale;
 
-            // ºÎ¸ğ ¼³Á¤ (HandParent) - ¿ùµå À§Ä¡/Å©±â À¯Áö(true)
+            // ë¶€ëª¨ ì„¤ì • (HandParent) - ì›”ë“œ ìœ„ì¹˜/í¬ê¸° ìœ ì§€(true)
             obj.transform.SetParent(handParent, true);
 
             createdScripts[i].SetSortingOrder(10);
@@ -443,7 +433,7 @@ public class GameManager : MonoBehaviour
         CheckGameOver();
     }
 
-    void TryPlaceBlock(Block block)
+    void TryPlaceBlock(Block block) // [ê²€ì‚¬] ë¸”ë¡ ë†“ê¸° ì‹œë„
     {
         bool canPlace = true;
         List<Vector2Int> targetCoords = new List<Vector2Int>();
@@ -452,7 +442,7 @@ public class GameManager : MonoBehaviour
         {
             Vector2Int pos = WorldToGrid(piece.position);
 
-            // º¸µå ¹üÀ§ ¹ÛÀÌ°Å³ª ÀÌ¹Ì Ã¤¿öÁø Ä­ÀÌ¸é ½ÇÆĞ
+            // ë³´ë“œ ë²”ìœ„ ë°–ì´ê±°ë‚˜ ì´ë¯¸ ì±„ì›Œì§„ ì¹¸ì´ë©´ ì‹¤íŒ¨
             if (!IsValidCoord(pos) || gridData[pos.x, pos.y] == 1)
             {
                 canPlace = false;
@@ -473,34 +463,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    Vector2Int WorldToGrid(Vector3 worldPos)
-    {
-        Vector3 localPos = boardParent.InverseTransformPoint(worldPos);
-
-        float boardRealWidth = cellSize * boardSize;
-        float startOffset = -boardRealWidth * 0.5f + cellSize * 0.5f;
-
-        int x = Mathf.RoundToInt((localPos.x - startOffset) / cellSize);
-        int y = Mathf.RoundToInt((localPos.y - startOffset) / cellSize);
-
-        return new Vector2Int(x, y);
-    }
-
-    Vector3 GridToWorld(int x, int y)
-    {
-        float boardRealWidth = cellSize * boardSize;
-        float startOffset = -boardRealWidth / 2.0f + cellSize / 2.0f;
-
-        Vector3 localPos = new Vector3(startOffset + x * cellSize, startOffset + y * cellSize, 0);
-        return boardParent.TransformPoint(localPos);
-    }
-
-    bool IsValidCoord(Vector2Int pos)
+    bool IsValidCoord(Vector2Int pos) // [ê²€ì‚¬] ê²©ì ì¢Œí‘œê°€ ë³´ë“œ ë²”ìœ„ ë‚´ì— ìˆëŠ”ì§€ í™•ì¸
     {
         return pos.x >= 0 && pos.x < boardSize && pos.y >= 0 && pos.y < boardSize;
     }
 
-    void PlaceBlockOnGrid(Block block, List<Vector2Int> coords)
+    void PlaceBlockOnGrid(Block block, List<Vector2Int> coords) // [ê¸°ëŠ¥] ë¸”ë¡ì„ ê²©ìì— ë†“ê¸°
     {
         SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
 
@@ -531,12 +499,12 @@ public class GameManager : MonoBehaviour
         else CheckGameOver();
     }
 
-    void GetLinesToClear(int[,] targetGrid, out List<int> fullRows, out List<int> fullCols)
+    void GetLinesToClear(int[,] targetGrid, out List<int> fullRows, out List<int> fullCols) // [ê²€ì‚¬] ì±„ì›Œì§„ ì¤„ ì°¾ê¸°
     {
         fullRows = new List<int>();
         fullCols = new List<int>();
 
-        // °¡·Î È®ÀÎ
+        // ê°€ë¡œ í™•ì¸
         for (int y = 0; y < boardSize; y++)
         {
             bool full = true;
@@ -551,7 +519,7 @@ public class GameManager : MonoBehaviour
             if (full) fullRows.Add(y);
         }
 
-        // ¼¼·Î È®ÀÎ
+        // ì„¸ë¡œ í™•ì¸
         for (int x = 0; x < boardSize; x++)
         {
             bool full = true;
@@ -567,7 +535,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void CheckLines()
+    void CheckLines() // [ê¸°ëŠ¥] ì±„ì›Œì§„ ì¤„ í™•ì¸ ë° ì œê±°
     {
         GetLinesToClear(gridData, out List<int> rowsToClear, out List<int> colsToClear);
 
@@ -575,11 +543,11 @@ public class GameManager : MonoBehaviour
             ClearLines(rowsToClear, colsToClear);
     }
 
-    void ClearLines(List<int> rows, List<int> cols)
+    private void ClearLines(List<int> rows, List<int> cols) // [ê²€ì‚¬] ì±„ì›Œì§„ ì¤„ í™•ì¸ ë° ì œê±°
     {
         int totalClearedCells = 0;
 
-        // Áßº¹ Á¦°Å¸¦ À§ÇØ Set »ç¿ë È¤Àº ´Ü¼ø ¹İº¹
+        // ì¤‘ë³µ ì œê±°ë¥¼ ìœ„í•´ Set ì‚¬ìš© í˜¹ì€ ë‹¨ìˆœ ë°˜ë³µ
         HashSet<Transform> piecesToDestroy = new HashSet<Transform>();
 
         foreach (int y in rows)
@@ -610,15 +578,15 @@ public class GameManager : MonoBehaviour
 
         foreach (Transform t in piecesToDestroy)
         {
-            Destroy(t.gameObject); // ³ªÁß¿¡ ÆÄÆ¼Å¬ È¿°ú Ãß°¡ °¡´É
+            Destroy(t.gameObject); // ë‚˜ì¤‘ì— íŒŒí‹°í´ íš¨ê³¼ ì¶”ê°€ ê°€ëŠ¥
             totalClearedCells++;
         }
 
-        // Á¡¼ö °è»ê (ÄŞº¸ Á¡¼ö µî Ãß°¡ °¡´É)
+        // ì ìˆ˜ ê³„ì‚° (ì½¤ë³´ ì ìˆ˜ ë“± ì¶”ê°€ ê°€ëŠ¥)
         AddScore(totalClearedCells * 10 * (rows.Count + cols.Count));
     }
 
-    void AddScore(int amount)
+    void AddScore(int amount) // [ê¸°ëŠ¥] ì ìˆ˜ ì¶”ê°€ ë° ìµœê³  ê¸°ë¡ ê°±ì‹ 
     {
         currentScore += amount;
         if (currentScore > BestRecord)
@@ -632,7 +600,7 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
     }
 
-    void UpdateScoreUI(bool bestscore = false)
+    void UpdateScoreUI(bool bestscore = false) // [ê¸°ëŠ¥] ì ìˆ˜ UI ê°±ì‹  [UIManagerë¡œ ì´ì „ ì˜ˆì •]
     {
         string scoretxt = "Score";
         string bestscoretxt = "Best Score";
@@ -644,10 +612,45 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // --- °ÔÀÓ ¿À¹ö È®ÀÎ ---
-    void CheckGameOver()
+    // --- ìœ í‹¸ë¦¬í‹° í•¨ìˆ˜ ---
+    Vector3 GetObjectWorldSize(Transform t) // [íˆ´] ì˜¤ë¸Œì íŠ¸ì˜ ì›”ë“œ í¬ê¸° ë°˜í™˜
     {
-        // ³²Àº ºí·Ï Áß ÇÏ³ª¶óµµ ³õÀ» °÷ÀÌ ÀÖ´ÂÁö È®ÀÎ
+        // SpriteRendererê°€ ìˆìœ¼ë©´ ê·¸ í¬ê¸°, ì—†ìœ¼ë©´ ìŠ¤ì¼€ì¼ ê¸°ë°˜ (1ìœ ë‹› í”„ë¦¬íŒ¹ ê°€ì •)
+        SpriteRenderer sr = t.GetComponent<SpriteRenderer>();
+        if (sr != null) return sr.bounds.size;
+
+        // RectTransformì´ ìˆìœ¼ë©´ ê·¸ í¬ê¸° (UIì¼ ê²½ìš°)
+        RectTransform rt = t.GetComponent<RectTransform>();
+        if (rt != null) return new Vector3(rt.rect.width * t.lossyScale.x, rt.rect.height * t.lossyScale.y, 1);
+
+        // ê¸°ë³¸ Transform ìŠ¤ì¼€ì¼ (ë¶€ëª¨ê°€ 1x1 íë¸Œë‚˜ ë¹ˆ ì˜¤ë¸Œì íŠ¸ì¼ ë•Œ)
+        return t.lossyScale;
+    }
+    Vector2Int WorldToGrid(Vector3 worldPos) // [íˆ´] ì›”ë“œ ì¢Œí‘œë¥¼ ê²©ì ì¢Œí‘œë¡œ ë³€í™˜
+    {
+        Vector3 localPos = boardParent.InverseTransformPoint(worldPos);
+
+        float boardRealWidth = cellSize * boardSize;
+        float startOffset = -boardRealWidth * 0.5f + cellSize * 0.5f;
+
+        int x = Mathf.RoundToInt((localPos.x - startOffset) / cellSize);
+        int y = Mathf.RoundToInt((localPos.y - startOffset) / cellSize);
+
+        return new Vector2Int(x, y);
+    }
+    Vector3 GridToWorld(int x, int y) // [íˆ´] ê²©ì ì¢Œí‘œë¥¼ ì›”ë“œ ì¢Œí‘œë¡œ ë³€í™˜
+    {
+        float boardRealWidth = cellSize * boardSize;
+        float startOffset = -boardRealWidth / 2.0f + cellSize / 2.0f;
+
+        Vector3 localPos = new Vector3(startOffset + x * cellSize, startOffset + y * cellSize, 0);
+        return boardParent.TransformPoint(localPos);
+    }
+
+    // --- ê²Œì„ ì˜¤ë²„ í™•ì¸ ---
+    void CheckGameOver() // [ê²€ì‚¬] ê²Œì„ ì˜¤ë²„ í™•ì¸
+    {
+        // ë‚¨ì€ ë¸”ë¡ ì¤‘ í•˜ë‚˜ë¼ë„ ë†“ì„ ê³³ì´ ìˆëŠ”ì§€ í™•ì¸
         bool possibleMoveExists = false;
 
         foreach (Block block in activeBlocks)
@@ -672,9 +675,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    bool CanFitAnywhere(Block block)
+    private bool CanFitAnywhere(Block block) // [ê²€ì‚¬] ë¸”ë¡ì´ ë³´ë“œ ì–´ë””ë“  ë“¤ì–´ê°ˆ ìˆ˜ ìˆëŠ”ì§€ í™•ì¸
     {
-        // ¸ğµç °İÀÚ À§Ä¡(x,y)¿¡ ´ëÇØ ºí·ÏÀ» ³õ¾Æº¼ ¼ö ÀÖ´ÂÁö Å×½ºÆ®
+        // ëª¨ë“  ê²©ì ìœ„ì¹˜(x,y)ì— ëŒ€í•´ ë¸”ë¡ì„ ë†“ì•„ë³¼ ìˆ˜ ìˆëŠ”ì§€ í…ŒìŠ¤íŠ¸
         int[,] shape = block.shapeData;
         int shapeW = shape.GetLength(0);
         int shapeH = shape.GetLength(1);
@@ -687,9 +690,9 @@ public class GameManager : MonoBehaviour
             }
         }
         return false;
-    }
+    } 
 
-    bool CheckFitAt(int startX, int startY, int[,] shape)
+    private bool CheckFitAt(int startX, int startY, int[,] shape) // [ê²€ì‚¬] íŠ¹ì • ìœ„ì¹˜ì— ë¸”ë¡ì´ ë“¤ì–´ê°ˆ ìˆ˜ ìˆëŠ”ì§€ í™•ì¸
     {
         for (int i = 0; i < shape.GetLength(0); i++)
         {
@@ -700,7 +703,7 @@ public class GameManager : MonoBehaviour
                     int targetX = startX + i;
                     int targetY = startY + j;
 
-                    // ¹üÀ§¸¦ ¹ş¾î³ª°Å³ª ÀÌ¹Ì Â÷ÀÖÀ¸¸é ½ÇÆĞ
+                    // ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ê±°ë‚˜ ì´ë¯¸ ì°¨ìˆìœ¼ë©´ ì‹¤íŒ¨
                     if (targetX >= boardSize || targetY >= boardSize || gridData[targetX, targetY] == 1)
                     {
                         return false;
@@ -711,7 +714,7 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    // ¹öÆ°¿¬°á
+    // ë²„íŠ¼ì—°ê²°
     public void RestartGame()
     {
         SoundManager.Instance.PlaySFX(SoundManager.Instance.placeBlockClip);
